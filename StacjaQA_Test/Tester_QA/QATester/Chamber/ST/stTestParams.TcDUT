@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="stTestParams" Id="{ee416646-f725-4137-be1a-40832c8786ae}">
+    <Declaration><![CDATA[TYPE stTestParams :
+STRUCT
+	//Test Wydajnościowy 300 sek
+		rTest300SecTime 					: REAL;	//Czas testu 300 sekund
+		rPresureToObtainPerformanceTest		: REAL;	//Ciśnienie do osiągnięcia
+		rCurrentLimitPerformacneTest		: REAL;	//Limit maksymalnego pądu na teście wydajnościowym
+	//Test EOL
+		rTestEolLimitTime					: REAL;	//Limit czasu na test EOL
+		rPresureToObtainEOLTest				: REAL;	//Ciśnienie do osiągnięcia
+	//Test Godzinny
+		rTestHourTime						: REAL;	//Czas testu godzinnego
+		rPressureToObtainHourTest			: REAL;	//Ciśnienie do osiągnięcia 
+		rTestHourPressureMaximalTolerance	: REAL;	//Minimalny spadek ciśnienia
+	//Test Pod Ciśnieniem
+		rTestUnderPresureTime 				: REAL;	//Czas testu startu pod ciśnieniem
+		rTestUnderPresureSetPresure			: REAL;	//Nastawa ciśnienia do startu
+		rTestUnderPresureMinimalIncrease	: REAL;	//Minimalny wzrost ciśnienia dla staru pod ciśnieniem
+		rTestUnderPresureCloseTolerance		: REAL;	//Ile ciśnienia przed wyłączyć
+		rTestUnderPresureStartTolerance		: REAL;	//maksymalny uchyb ciśnienia 
+	//Test Pełny
+		rTestCoolingTimeFullStepI			: REAL;	//Czas studzenia I
+		rTestCoolingTimeFullStepII			: REAL;	//Czas studzenia II
+		rTestHeatingTime					: REAL; //Czas wygrzewnaia (czas pomiędzy testami godzinnymi)
+	//Test Cykliczny 30
+		rTestCycle30CoolingTime				: REAL;	//Czas studzenia dla testu cyklicznego
+		rTestCycle30LimitTime				: REAL;	//Limit czasu dla testu cyklicznego
+		rPresureToObtainCycle30Test			: REAL;	//Ciśnienie do osiągnięcia
+		rStartPresureCycle30Test			: REAL;	//Ciśnienie startu
+		bCheckStartPresureCycle30			: BOOL;	//Sprawdzanie ciśnienia startowego
+		rCurrentLimitCycle30				: REAL;	//Limit maksymalnego pądu na teście cyklicznym
+	//Test Cykliczny 70
+		rTestCycle70CoolingTime				: REAL;	//Czas studzenia dla testu cyklicznego
+		rTestCycle70LimitTime				: REAL;	//Limit czasu dla testu cyklicznego
+		rPresureToObtainCycle70Test			: REAL;	//Ciśnienie do osiągnięcia
+		rStartPresureCycle70Test			: REAL;	//Ciśnienie startu
+		bCheckStartPresureCycle70			: BOOL;	//Sprawdzanie ciśnienia startowego
+		rCurrentLimitCycle70				: REAL;	//Limit maksymalnego pądu na teście cyklicznym
+	//Wspólne parametry
+		//wTestOffsetDelayTime				: WORD; //Czas przerwy pomiędzy testami
+		rMinimalCurrentLimit				: REAL;	//Minimalna wartość prądu podczas testu
+		rMinimalCurrentCheckDelay			: REAL;	//Okres po którym będzie sprawdana minimalna wartość prądu
+	
+	
+	
+
+
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

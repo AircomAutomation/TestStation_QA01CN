@@ -1,0 +1,921 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbChamber" Id="{92018890-bba3-4a0b-9c46-efc95a910be5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbChamber
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR_IN_OUT
+	stControl				: stControl;
+	stInOuts 				: stInOuts;
+	stParams				: stParamsChamber;
+	stChamberTestParams		: stTestParams;
+	stTime					: stAircomTimeStruct;	//Struktura czasu
+END_VAR
+VAR
+	//Bloki skalujące
+	fbPressureScaller 		:fbAnalogMeasurement;	//Blok skalujący ciśnienie
+	fbVoltageScaller	 	:fbAnalogMeasurement;	//Blok skalujący napięcie
+	fbCurrentScaller 		:fbAnalogMeasurement;	//Blok skalujący prąd
+	iWorkStep : INT;
+	//Detekcja prądu
+	fbCurrentCheckDelayer	: TON;					//Zwłoka dla wykrywania prądu minimalnego
+	//Test EOL
+	fbTestTimerEOL			: TON;					//Licznik czasu trwania testu EOL
+	bEolTestResult			: BOOL;					//Wynik z testu EOL
+	//Test Performance
+	fbTestTimerPerformance	: TON;					//Licznik czasu trwania testu Wydajnoiściowego
+	bPerfornamceTestResult	: BOOL;					//Wynik z testu Wydajnościowego
+	//Test Hour
+	fbTestTimerHour	: TON;							//Licznik czasu trwania testu Wydajnoiściowego
+	bHourTestResult	: BOOL;							//Wynik z testu Wydajnościowego
+	bPressureObtainedHour :BOOL;					//Pierwsza faza zakończona osiągnięto ciśnienie testowe
+	//Test Whole
+	iWorkStepWhole	: INT;							//Kroki programowe dla testu całościowego
+	fbTestTimerWholeI	: TON;							//Licznik czasu I test całkowity
+	fbTestTimerWholeII	: TON;							//Licznik czasu II test całkowity
+	//Test Under Presure
+	bUnderPresureTestResult : BOOL;					//Wynik testu pod ciśnieniem
+	rStartUnderPresureLastPresureRecord : REAL;		//Save value of presure before test
+	fbUnderPresureTestTimer	: TON;							//Licznik czasu dla tesu pod ciśnieniem
+	//Test Cyclic 30
+	iCyclicLoopVariable 		: INT;				//Wariable for calculate of cyclic loops
+	fbTestTimerCyclic30			: TON;				//Licznik czasu trwania testu cyklicznego 30
+	bCyclic30TestResult			: BOOL;				//Wynik testu cyklicznego x30
+	fbTestTimerCyclic30On		: TON;				//Timer dla obsługi testu
+	bFirstCycle30				: BOOL;				//First cycle indefiner
+	//Test Cyclic 70
+	fbTestTimerCyclic70			: TON;				//Licznik czasu trwania testu cyklicznego 30
+	bCyclic70TestResult			: BOOL;				//Wynik testu cyklicznego x30
+	fbTestTimerCyclic70On		: TON;				//Timer dla obsługi testu
+	bFirstCycle70				: BOOL;				//First cycle indefiner
+	//Zmienne do obsługi zapisu plików
+	sData						: STRING;			//Data dopisana do lokalizacji
+	sDate						: STRING;			//Data rozpoczęcia testu
+	sTime						: STRING;			//Godzina rozpoczęcia testu
+	sTestName					: STRING;			//Nazwa Test
+	sFirstLine					: STRING;			//Dane do zapisu w pierwszej linijce
+	sDataString					: STRING(5000);			//dane z pomiarami
+	sDataStringTmp				: STRING(5000);			//dane z pomiarami
+	sDataStringTmpSave			: STRING(5000);			//Dane do zapisu
+	sActualTestTime				: STRING;			//Aktualny czas testu
+	sActualPresure				: STRING;			//Aktualna wartość ciśnienia
+	sActualVoltage				: STRING;			//Aktualna wartość napięcia
+	sActualCurrent				: STRING;			//Aktualna wartość prądu
+	sActualTemperature			: STRING;			//Aktualna wartość temperatury
+	fbTestTime					: TON;				//Czas wykonywania testu
+	iSaveFileRecords			: INT;				//Aktualnie zapisane rekody do zapisu pliku
+	iSaveFileRecordsTmp			: INT;				//Zapisana ilość rekordów w tablicy do zapisu (zmienne skopiowane)
+	bCreateFile					: BOOL;				//Wymueszenie utworzenia nowego pliku
+	bInsertNewStartRows			: BOOL;				//Wymuszenie wstawienia pierwszych 2 wierszy 
+	bSavePerform				: BOOL;				//Wykonaj zapis do pliku
+	bCopyArray					: BOOL;				//Przygotowanie buforów do zapisu
+	arTmpData					: ARRAY[0..1000] OF STRING;	//Tablica z zmiennymi
+	arTmpDataCpy				: ARRAY[0..1000] OF STRING;	//Tablica z zmiennymi skopiowanymi
+	fbFileOpen					: FB_FileOpen;		//Funkcja dla otwierania pliku
+	fbFileClose					: FB_FileClose;		//Funkcja dla zamknięcia pliku
+	fbFileWrite					: FB_FileWrite;		//Funkcja dla zapisu pliku
+	sFileNameToSave				: STRING;			//Nazwa do zapisu pliku
+	bReadyToWrite				: BOOL;				//Zezwolenie na zapis do pliku
+	bReadyToClose				: BOOL;				//Zezwolenie na zamknięcie pliku
+	bFileSaveError				: BOOL;				//Błąd podczas tworzenie zapisów
+	iSampleRecorder				: INT;				//Obsługa samplingu
+	fbTestTimer					: TON;				//Obsługa czasu trwania testu
+	sTimeRep					: STRING;			//Zmienna dla obsługi czasu godzina 
+	fbRiseEdgeError				: R_TRIG;
+	iSaveCalc					: INT;				// zmienna pomocnicza podczas zapisu danych
+	bRecordTaker				: BOOL;				//Zmienna dla obsługi zbierania danych
+	wRecordCalc					: DWORD;			//Zmienna dla lcizenia czasu testu
+	bFileCopy					: BOOL;				//Zmienna wykorzystywana podczas kopiowania plików
+	fbFileSave					: fbSaveFiles;		//Save files save
+	fbFileSaveCopy				: fbSaveFiles;		//Save files save
+	//Zmienne dla obsługi rysowania grafów
+	arPlotPresure				: ARRAY[0..1000] OF REAL;
+	arPlotVoltage				: ARRAY[0..1000] OF REAL;
+	arPlotCurrent				: ARRAY[0..1000] OF REAL;
+	iPlotRecordCounter			: INT;
+	sStepDescription			: STRING;
+	iPlotFilter					: INT;
+	sFileCopyCommand			: STRING(1000);
+	sTemString					: STRING;
+	bTEST: BOOL;
+	sDirCopy: STRING;
+	sPathCopy:STRING;
+	iLastWorkStep: INT;
+	fbRestON: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ACT_Background();
+CASE iWorkStep OF
+ 0: 				//Inicalizacja
+ 	iWorkStep := 5;
+	stParams.sErrorDescription :='';
+	fbTestTimer(IN:=FALSE);
+	stInOuts.bFanON := stInOuts.bPowerON := stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := stInOuts.bBottle40l := stInOuts.bPressureIn := FALSE;
+ 5:					//Idle
+ 	sStepDescription := 'Chamber Idle';
+	stParams.sTestName:= '';
+	stControl.tActualTime := T#40D;
+	bUnderPresureTestResult R= bCyclic70TestResult R= bCyclic30TestResult R= bPerfornamceTestResult R= bEolTestResult R= stControl.bStartPerform;
+ 	IF stControl.bStartPerform AND stControl.iSetTest >= 20 AND stInOuts.rPressure <= stParams.rMinimalPressure THEN
+		iWorkStep := 6;
+		stControl.tActualTime := stTime.tActualTime;
+	ELSIF stControl.bStartPerform AND stControl.iSetTest = nTestType.testEOL AND stInOuts.rPressure <= stParams.rMinimalPressure THEN
+		iWorkStep := stControl.iSetTest;
+		stControl.bStartPerform := FALSE;
+		bInsertNewStartRows := TRUE;
+	ELSIF stControl.bStartPerform THEN
+		stInOuts.bEjectPresure := TRUE;
+		sStepDescription := 'Presure droping';
+	END_IF
+ 6:
+ 	sStepDescription := 'Wait for bottle 40l';
+ 	IF stControl.iSetTest = nTestType.testEOL OR NOT stControl.bStartPerform THEN
+		iWorkStep := 5;
+		stControl.bStartPerform := FALSE;
+		stControl.tActualTime := T#40D;
+	END_IF
+ 	IF stControl.bStartAllow THEN
+		bInsertNewStartRows := TRUE;
+		bUnderPresureTestResult := bCyclic70TestResult := bCyclic30TestResult := bPerfornamceTestResult := bEolTestResult := FALSE;
+		iWorkStep := stControl.iSetTest;
+		bFirstCycle70 := bFirstCycle30 := TRUE;
+		stControl.bStartAllow := FALSE;
+		stControl.bStartPerform := FALSE;
+	END_IF
+
+ 10: 				//EOL Test
+ 	stParams.sTestName:= 'EOL_Test';
+	ACT_EolTest();
+	IF bEolTestResult THEN
+		iWorkStep := 1000;
+	END_IF
+ 20:				//Performance Test
+	stParams.sTestName:= 'Performance_Test';
+ 	ACT_PerformanceTest();
+	IF bPerfornamceTestResult THEN
+		iWorkStep := 1000;
+	END_IF
+ 30:				//Hour Test
+ 	stParams.sTestName:= 'Hour_Test';
+ 	ACT_HourTest();
+	IF bHourTestResult THEN
+		iWorkStep := 1000;
+	END_IF
+ 40:				//Whole Test
+ 	stParams.sTestName:= 'Full_Test';
+ 	Act_WholeTest();
+ 50:				//Cyclic x30 Test
+ 	stParams.sTestName:= 'Cyclic_x30_Test';
+ 	ACT_Cyclic30Test();
+	IF bCyclic30TestResult THEN
+		iWorkStep := 1000;
+	END_IF
+ 60:				//Cyclic x70 Test
+ 	stParams.sTestName:= 'Cyclic_x70_Test';
+ 	ACT_Cyclic70Test();
+	IF bCyclic70TestResult THEN
+		iWorkStep := 1000;
+	END_IF
+ 200:				// Błąd
+ 	stControl.tActualTime := T#40D;
+ 	fbTestTimer(IN:=FALSE);
+	stControl.bStartAllow := stControl.bStartPerform := FALSE;
+	IF stInOuts.rPressure >= stParams.rMinimalPressure THEN
+		stInOuts.bEjectPresure40 := TRUE;
+		sStepDescription := 'Error pressure droping';
+	ELSE
+		stControl.bTank40Used := FALSE;
+		stInOuts.bEjectPresure40 := FALSE;
+		sStepDescription := 'Wait for reset';
+	END_IF
+	
+ 	bUnderPresureTestResult := bCyclic70TestResult := bCyclic30TestResult := bPerfornamceTestResult := bEolTestResult := stInOuts.bFanON := stInOuts.bPowerON := stInOuts.bEjectPresure := stInOuts.bBottle40l := stInOuts.bPressureIn := FALSE;
+ 	IF stControl.bResetChamber THEN
+		iWorkStep:=0;
+		stControl.bResetChamber := FALSE;
+		bFileCopy := TRUE;
+	END_IF
+ 1000:				//Przygotowanie komory do następnego testu
+ 	stInOuts.bEjectPresure40 S= (bPerfornamceTestResult OR bHourTestResult OR bCyclic70TestResult OR bCyclic30TestResult);
+	stInOuts.bEjectPresure S= bEolTestResult;
+	sStepDescription := 'Presure droping';
+ 	IF stInOuts.rPressure <= stParams.rMinimalPressure THEN
+		stControl.tActualTime := T#40D;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := FALSE;
+		iWorkStep := 0;
+		bFileCopy := TRUE;
+	END_IF
+END_CASE]]></ST>
+    </Implementation>
+    <Folder Name="Tests" Id="{f2c98301-b4b3-4559-b309-e9009caa9302}" />
+    <Action Name="ACT_Background" Id="{26932ffc-0ce0-4424-833b-d11150f7d951}">
+      <Implementation>
+        <ST><![CDATA[//Obsługa zatrzymania
+IF stControl.bChamberBusy AND stControl.bStopPerform THEN
+	iWorkStep := 1000;
+	stControl.bStopPerform := FALSE;
+END_IF
+fbRestON(IN:=stControl.bResetChamber,Pt:=T#200MS);
+IF fbRestON.Q THEN
+	stControl.bResetChamber  := FALSE;
+END_IF
+//Skalowanie pomiarów Ciśnienia/Napięcia/Prądu
+	fbPressureScaller(rIn:=stInOuts.iPressureRaw,stMeasureScalingData:=stParams.stPressureSens,tStalaCzasowa:=T#10MS,rOutFiltered=>stInOuts.rPressure);
+	fbVoltageScaller(rIn:=stInOuts.iVoltageRaw,stMeasureScalingData:=stParams.stVoltageSens,tStalaCzasowa:=T#10MS,rOutFiltered=>stInOuts.rVoltage);
+	fbCurrentScaller (rIn:=stInOuts.iCurrentRaw,stMeasureScalingData:=stParams.stCurrenteSens,tStalaCzasowa:=T#10MS,rOutFiltered=>stInOuts.rCurrent);
+	stInOuts.rTemperature := stInOuts.iTemperature/10;
+//Obsługa Safety
+IF stInOuts.bSafety	THEN
+	stParams.sErrorDescription := 'Emergency button pressed';
+	iWorkStep := 200;
+END_IF
+//Obsługa daty
+sData := CONCAT(WORD_TO_STRING(stTime.stTimeStruct.wYear),'_');
+sData := CONCAT(sData,WORD_TO_STRING(stTime.stTimeStruct.wMonth));
+//Obsługa zbiornika
+	stControl.bTank40Used := iWorkStep >= 20; 		//Określenie czy zbiornik 40l jest wykorzystywany
+//Obsługa sekwencji
+	stControl.bChamberBusy := (iWorkStep >=10);		//Określenie czy komora wykonuje prace
+	stControl.bStartPerform R= (iWorkStep > 6);	//Kasowanie wymuszenia staru po rozpoczęciu nowej pracy
+//Sprawowanie kontroli nad prądem minimalnym
+	fbCurrentCheckDelayer(IN:=stInOuts.bPowerON,PT:=REAL_TO_TIME(stChamberTestParams.rMinimalCurrentCheckDelay*1000));
+	IF fbCurrentCheckDelayer.Q AND (stChamberTestParams.rMinimalCurrentLimit > stInOuts.rCurrent) THEN
+		stParams.sErrorDescription := 'Minimal current obtain error';
+		iWorkStep := 200;
+	END_IF
+//Zapis Pliku 
+sDate := CONCAT(CONCAT(CONCAT(CONCAT(WORD_TO_STRING(stTime.stTimeStruct.wYear),'_'),WORD_TO_STRING(stTime.stTimeStruct.wMonth)),'_'),WORD_TO_STRING(stTime.stTimeStruct.wDay));
+sTimeRep := CONCAT(CONCAT(CONCAT(CONCAT(WORD_TO_STRING(stTime.stTimeStruct.wHour),'_'),WORD_TO_STRING(stTime.stTimeStruct.wMinute)),'_'),WORD_TO_STRING(stTime.stTimeStruct.wSecond));	
+sDate := CONCAT(CONCAT(sDate,'_'),sTimeRep);
+IF stControl.bChamberBusy AND stParams.bSaveToFile THEN
+	ACT_DataSampling();
+ELSE
+	wRecordCalc := 0;
+END_IF
+IF stControl.bChamberBusy AND (stParams.sErrorDescription = '') THEN
+	ACT_GraphWriter();
+	sStepDescription := 'Work in progress';
+ELSIF iPlotRecordCounter <> 0 THEN
+	iPlotRecordCounter := 0;
+	MEMSET(destAddr:=ADR(arPlotPresure),fillByte:=16#00,n:=SIZEOF(arPlotPresure[0])*1000);
+	MEMSET(destAddr:=ADR(arPlotVoltage),fillByte:=16#00,n:=SIZEOF(arPlotVoltage[0])*1000);
+	MEMSET(destAddr:=ADR(arPlotCurrent),fillByte:=16#00,n:=SIZEOF(arPlotCurrent[0])*1000);
+ELSIF NOT stControl.bChamberBusy AND stParams.sErrorDescription = '' THEN
+	sStepDescription := 'Idle';
+ELSIF stParams.sErrorDescription <> '' THEN
+	sStepDescription := 'Chamber Error';
+END_IF
+//Timer dla obsługi aktualnego czasu
+fbTestTime(IN:=stControl.bChamberBusy,PT:=T#5D);
+//Wyniki z testów
+stControl.bChamberResoult := bUnderPresureTestResult OR bCyclic70TestResult OR bCyclic30TestResult OR bPerfornamceTestResult OR bEolTestResult;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_Cyclic30Test" Id="{6c4769a7-ccce-4c82-a5e6-dc70a100a96b}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[fbTestTimer(IN:=stINOuts.bPowerON,PT:=T#10D);
+IF fbTestTimerCyclic30On.Q OR bFirstCycle30 THEN
+	stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := stInOuts.bPressureIn := FALSE;
+	stInOuts.bBottle40l := stInOuts.bFanON := stInOuts.bPowerON := TRUE;
+	fbTestTimerCyclic30(IN:= stInOuts.bPowerON,PT:=REAL_TO_TIME(stChamberTestParams.rTestCycle30LimitTime*1000));
+	IF (fbTestTimerPerformance.Q AND stChamberTestParams.rPresureToObtainCycle30Test >= stInOuts.rPressure) THEN
+		iWorkStep:= 200;
+		stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stParams.sErrorDescription := 'Compressor did not obtain set pressure in limited time';
+		bPerfornamceTestResult := FALSE;
+		fbTestTimerPerformance(IN:=FALSE);
+	ELSIF (stChamberTestParams.rCurrentLimitCycle30 < stInOuts.rCurrent) THEN
+		iWorkStep:= 200;
+		stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stParams.sErrorDescription := 'Current to high';
+		bPerfornamceTestResult := FALSE;
+		fbTestTimerPerformance(IN:=FALSE);
+	END_IF
+	IF fbTestTimerPerformance.Q AND stChamberTestParams.rPresureToObtainCycle30Test <= stInOuts.rPressure THEN
+		iCyclicLoopVariable := iCyclicLoopVariable + 1;
+		bFirstCycle30 := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stInOuts.bPowerON := FALSE;
+		fbTestTimerCyclic30On(IN:=FALSE);
+		fbTestTimerCyclic30(IN:=FALSE);
+		stInOuts.bPowerON := FALSE;
+		IF iCyclicLoopVariable >=30 THEN
+			bCyclic30TestResult := TRUE;
+			iCyclicLoopVariable := 0;
+			bFirstCycle30:= TRUE;
+		END_IF
+	END_IF
+ELSE
+	fbTestTimerCyclic30On(IN:=TRUE,PT:=REAL_TO_TIME(stChamberTestParams.rTestCycle30CoolingTime*1000));
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_Cyclic70Test" Id="{bf6d1270-e215-4f8f-82b2-fb34b284a109}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[fbTestTimer(IN:=stINOuts.bPowerON,PT:=T#10D);
+IF fbTestTimerCyclic70On.Q OR bFirstCycle70 THEN
+	stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := stInOuts.bPressureIn := FALSE;
+	stInOuts.bBottle40l := stInOuts.bFanON := stInOuts.bPowerON := TRUE;
+	fbTestTimerCyclic70(IN:= stInOuts.bPowerON,PT:=REAL_TO_TIME(stChamberTestParams.rTestCycle70LimitTime*1000));
+	IF (fbTestTimerPerformance.Q AND stChamberTestParams.rPresureToObtainCycle70Test >= stInOuts.rPressure) THEN
+		iWorkStep:= 200;
+		stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stParams.sErrorDescription := 'Compressor did not obtain set pressure in limited time';
+		bPerfornamceTestResult := FALSE;
+		fbTestTimerPerformance(IN:=FALSE);
+	ELSIF (stChamberTestParams.rCurrentLimitCycle70 < stInOuts.rCurrent) THEN
+		iWorkStep:= 200;
+		stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stParams.sErrorDescription := 'Current to high';
+		bPerfornamceTestResult := FALSE;
+		fbTestTimerPerformance(IN:=FALSE);
+	END_IF
+	IF fbTestTimerPerformance.Q AND stChamberTestParams.rPresureToObtainCycle70Test <= stInOuts.rPressure THEN
+		iCyclicLoopVariable := iCyclicLoopVariable + 1;
+		bFirstCycle70 := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stInOuts.bPowerON := FALSE;
+		fbTestTimerCyclic70On(IN:=FALSE);
+		fbTestTimerCyclic70(IN:=FALSE);
+		stInOuts.bPowerON := FALSE;
+		IF iCyclicLoopVariable >=30 THEN
+			bCyclic70TestResult := TRUE;
+			iCyclicLoopVariable := 0;
+			bFirstCycle70:= TRUE;
+		END_IF
+	END_IF
+ELSE
+	fbTestTimerCyclic70On(IN:=TRUE,PT:=REAL_TO_TIME(stChamberTestParams.rTestCycle30CoolingTime*1000));
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_DataSampling" Id="{ea2532f0-ebff-4831-ad56-5d5bba884596}">
+      <Implementation>
+        <ST><![CDATA[IF iWorkStep <> iLastWorkStep THEN
+	iLastWorkStep := iWorkStep;
+	wRecordCalc := 0;
+END_IF
+wRecordCalc := wRecordCalc +1;
+//Przygotowywanie zmiennych nagłówkowych
+IF bInsertNewStartRows AND stParams.sTestName <> '' THEN
+	//Przygotowanie ścieżki pliku z nazwą
+	sFileNameToSave:= '';
+	sFileNameToSave:= CONCAT(sFileNameToSave,sDate);
+	sFileNameToSave:= CONCAT(sFileNameToSave,'_');
+	sFileNameToSave:= CONCAT(sFileNameToSave,stParams.sChamberName);
+	sFileNameToSave:= CONCAT(sFileNameToSave,'_');
+	sFileNameToSave:= CONCAT(sFileNameToSave,sTestName);
+	sFileNameToSave:= CONCAT(sFileNameToSave,'_');
+	sFileNameToSave:= CONCAT(sFileNameToSave,stParams.sTestName);
+	sFileNameToSave:= CONCAT(sFileNameToSave,'.csv');
+	bInsertNewStartRows := FALSE;
+	//Tworzenie nagłówków 
+	sDataStringTmp := CONCAT(sDate,',');
+	sDataStringTmp := CONCAT(sDataStringTmp,stParams.sChamberName);
+	sDataStringTmp := CONCAT(sDataStringTmp,',');
+	sDataStringTmp := CONCAT(sDataStringTmp,stParams.sFileName);
+	sDataStringTmp := CONCAT(sDataStringTmp,',');
+	sDataStringTmp := CONCAT(sDataStringTmp,sTestName);
+	sDataStringTmp := CONCAT(sDataStringTmp,'$R');
+	sDataStringTmp := CONCAT(sDataStringTmp,'Czas [s],Prąd [A],Ciśnienie [bar],Napięcie [V],Temperatura [°C]$R');
+	sDataString := sDataStringTmp;
+	iSaveFileRecords := 2;
+END_IF
+//Cykliczne przygotowyawanie zmiennych
+IF stParams.sErrorDescription = '' THEN
+	iSampleRecorder := iSampleRecorder + 1;
+	bRecordTaker := (*iSampleRecorder >= 1;*)(iSampleRecorder >= stParams.iSampleTime0_150/10 AND  wRecordCalc  <=  15) OR (iSampleRecorder >= stParams.iSampleTime0_1/10 AND  wRecordCalc  > 15 AND  wRecordCalc  <=  100) 
+		OR (iSampleRecorder >= stParams.iSampleTime1_x/10 AND  wRecordCalc  >  100);
+	IF bRecordTaker THEN
+		sActualTestTime 	:= REAL_TO_STRING(TIME_TO_REAL(fbTestTime.ET)/1000);
+		sActualPresure 		:= REAL_TO_STRING(stInOuts.rPressure);					//Przepisanie wartości ciśnienia
+		sActualVoltage 		:= REAL_TO_STRING(stInOuts.rVoltage);					//Przepisanie wartości napięcia
+		sActualCurrent 		:= REAL_TO_STRING(stInOuts.rCurrent);					//Przepisanie wartości prądu
+		sActualTemperature 	:= REAL_TO_STRING(stInOuts.rTemperature);											//Przepisanie wartości temperatury
+		//Przygotowanie zmiennych cyklicznych do zapisu oraz przemieszczenie danych do bufora
+		sDataStringTmp 		:= CONCAT(sActualTestTime,',');					//Zapisanie aktualnego czasu 
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,sActualCurrent);			//Dopisanie wartości prądu
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,',');						//Przypisanie odstępu format CSV
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,sActualPresure);			//Dopisanie wartości ciśnienia
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,',');						//Przypisanie odstępu format CSV
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,sActualVoltage);			//Dopisanie wartości napięcia
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,',');						//Przypisanie odstępu format CSV
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,sActualTemperature);		//Dopisanie wartości temperatury
+		sDataStringTmp 		:= CONCAT(sDataStringTmp,'$R');						//Dopisanie znaku enter
+		CONCAT2(pSrcString1:=ADR(sDataString),pSrcString2:=ADR(sDataStringTmp),pDstString:=ADR(sDataString),nDstSize:=SIZEOF(sDataString));
+		iSaveFileRecords 	:= iSaveFileRecords + 1;
+		iSampleRecorder 	:= 0;
+	END_IF
+END_IF
+//Wykonanie zapisu oraz uporzątkowanie zmiennych/buforów
+fbRiseEdgeError(CLK:=(stParams.sErrorDescription <> '' OR iWorkStep = 1000));
+fbFileSave.bExecute S= ((iSaveFileRecords >= stParams.iSaveEveryRecords) OR fbRiseEdgeError.Q ) AND NOT fbFileSave.bBusy;
+fbFileSaveCopy.bExecute S= ((iSaveFileRecords >= stParams.iSaveEveryRecords) OR fbRiseEdgeError.Q ) AND NOT fbFileSave.bBusy;
+IF fbFileSave.bDone AND fbFileSave.bDone THEN
+	iSaveFileRecords := 0;
+	fbFileSave.bExecute R= TRUE;
+	fbFileSaveCopy.bExecute R= TRUE;
+	sDataString := '';
+END_IF
+fbFileSave(
+	sFileNameToSave:=sFileNameToSave,
+	sDataStringTmpSave:=sDataString,
+	sFileDirectory:=CONCAT(stParams.sFileDirectory,sData));
+fbFileSaveCopy(
+	sFileNameToSave:=sFileNameToSave,
+	sDataStringTmpSave:=sDataString,
+	sFileDirectory:=CONCAT(stParams.sFileCopyLocation,sData));]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_EolTest" Id="{3e8dafe0-fbc8-4fbd-a9f0-c41b276ef449}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[fbTestTimer(IN:=stINOuts.bPowerON,PT:=T#10D);
+stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := stInOuts.bBottle40l := stInOuts.bPressureIn := FALSE;
+stInOuts.bFanON := stInOuts.bPowerON := TRUE;
+fbTestTimerEOL(IN:= stInOuts.bPowerON,PT:=REAL_TO_TIME(stChamberTestParams.rTestEolLimitTime*1000));
+IF fbTestTimerEOL.Q THEN
+	iWorkStep:= 200;
+	stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+	stInOuts.bEjectPresure := TRUE;
+	stParams.sErrorDescription := 'Compressor did not obtain set pressure in limited time';
+	bEolTestResult := FALSE;
+	fbTestTimerEOL(IN:=FALSE);
+END_IF
+IF stChamberTestParams.rPresureToObtainEOLTest < stInOuts.rPressure THEN
+	bEolTestResult := TRUE;
+	fbTestTimerEOL(IN:=FALSE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_GraphWriter" Id="{ca0bbc37-a33f-4a95-ad90-74dcb0d0d1c6}">
+      <Implementation>
+        <ST><![CDATA[iPlotFilter := iPlotFilter + 1;
+IF iPlotFilter >= 5 THEN
+	arPlotPresure[iPlotRecordCounter] := stInOuts.rPressure;
+	arPlotVoltage[iPlotRecordCounter] := stInOuts.rVoltage;
+	arPlotCurrent[iPlotRecordCounter] := stInOuts.rCurrent;
+	iPlotRecordCounter := iPlotRecordCounter + 1;
+	iPlotFilter := 0;
+	IF iPlotRecordCounter >= 500 THEN
+		iPlotRecordCounter := 0;
+		MEMSET(destAddr:=ADR(arPlotPresure),fillByte:=16#00,n:=SIZEOF(arPlotPresure[0])*1000);
+		MEMSET(destAddr:=ADR(arPlotVoltage),fillByte:=16#00,n:=SIZEOF(arPlotVoltage[0])*1000);
+		MEMSET(destAddr:=ADR(arPlotCurrent),fillByte:=16#00,n:=SIZEOF(arPlotCurrent[0])*1000);
+	END_IF
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_HourTest" Id="{02181811-977a-4078-b3e9-3f316e52df8f}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[fbTestTimer(IN:=stINOuts.bPowerON,PT:=T#10D);
+stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := stInOuts.bPressureIn := FALSE;
+stInOuts.bBottle40l := stInOuts.bFanON := stInOuts.bPowerON := TRUE;
+fbTestTimerHour(IN:= (stChamberTestParams.rPressureToObtainHourTest<=stInOuts.rPressure),PT:=REAL_TO_TIME(stChamberTestParams.rTestHourTime*1000));
+bPressureObtainedHour S= (stChamberTestParams.rPressureToObtainHourTest<=stInOuts.rPressure);
+IF bPressureObtainedHour AND ABS(stInOuts.rPressure-stChamberTestParams.rPressureToObtainHourTest) > stChamberTestParams.rTestHourPressureMaximalTolerance THEN
+	iWorkStep:= 200;
+	stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+	stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+	stParams.sErrorDescription := 'Pressure deviation too high';
+	bHourTestResult := FALSE;
+	fbTestTimerHour(IN:= FALSE);
+END_IF
+IF fbTestTimerPerformance.Q THEN
+	bHourTestResult := TRUE;
+	bPressureObtainedHour R= TRUE;
+	fbTestTimerHour(IN:= FALSE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_PerformanceTest" Id="{fd61ae1f-5b08-4c39-a2da-c86c8c4f2eb3}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[fbTestTimer(IN:=stINOuts.bPowerON,PT:=T#10D);
+stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := stInOuts.bPressureIn := FALSE;
+stInOuts.bBottle40l := stInOuts.bFanON := stInOuts.bPowerON := TRUE;
+fbTestTimerPerformance(IN:= stInOuts.bPowerON,PT:=REAL_TO_TIME(stChamberTestParams.rTest300SecTime*1000));
+IF (fbTestTimerPerformance.Q AND stChamberTestParams.rPresureToObtainPerformanceTest >= stInOuts.rPressure) THEN
+	iWorkStep:= 200;
+	stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+	stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+	stParams.sErrorDescription := 'Compressor did not obtain set pressure in limited time';
+	bPerfornamceTestResult := FALSE;
+	fbTestTimerPerformance(IN:=FALSE);
+ELSIF (stChamberTestParams.rCurrentLimitPerformacneTest < stInOuts.rCurrent) THEN
+	iWorkStep:= 200;
+	stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+	stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+	stParams.sErrorDescription := 'Current to high';
+	bPerfornamceTestResult := FALSE;
+	fbTestTimerPerformance(IN:=FALSE);
+END_IF
+IF fbTestTimerPerformance.Q AND stChamberTestParams.rPresureToObtainPerformanceTest <= stInOuts.rPressure THEN
+	bPerfornamceTestResult := TRUE;
+	fbTestTimerPerformance(IN:=FALSE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_TestUnderPressure" Id="{2038a382-89b2-4823-97f1-7eeed3d570ce}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[fbTestTimer(IN:=stINOuts.bPowerON,PT:=T#10D);
+IF stInOuts.rPressure < (stChamberTestParams.rTestUnderPresureSetPresure - stChamberTestParams.rTestUnderPresureCloseTolerance) THEN
+	stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := FALSE;
+	stInOuts.bPressureIn := stInOuts.bBottle40l := TRUE;
+ELSE
+	stInOuts.bPressureIn := FALSE;
+END_IF
+IF ABS(stInOuts.rPressure - stChamberTestParams.rTestUnderPresureSetPresure) < stChamberTestParams.rTestUnderPresureStartTolerance AND NOT stInOuts.bPressureIn THEN
+	stInOuts.bPowerON := TRUE;
+	rStartUnderPresureLastPresureRecord := stInOuts.rPressure;
+END_IF
+
+IF stInOuts.bPowerON THEN
+	fbUnderPresureTestTimer(IN:=TRUE,PT:=REAL_TO_TIME(stChamberTestParams.rTestUnderPresureTime*1000));
+	IF (stInOuts.rPressure - stChamberTestParams.rTestUnderPresureSetPresure) > stChamberTestParams.rTestUnderPresureMinimalIncrease THEN
+		bUnderPresureTestResult := TRUE;
+	ELSIF fbUnderPresureTestTimer.Q THEN
+		iWorkStep:= 200;
+		stInOuts.bFanON := stInOuts.bPowerON := FALSE;
+		stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := TRUE;
+		stParams.sErrorDescription := 'Start under presure failt to obtain presure increase in definied time';
+		bUnderPresureTestResult := FALSE;
+		fbTestTimerPerformance(IN:=FALSE);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_WholeTest" Id="{27d190bc-b86a-4499-ba6e-4a762a3fc3bc}" FolderPath="Tests\">
+      <Implementation>
+        <ST><![CDATA[CASE iWorkStepWhole OF 
+	0:	//Test wydajnościowy
+		ACT_PerformanceTest();
+		IF bPerfornamceTestResult THEN
+			iWorkStepWhole := 5;
+		END_IF
+	5:
+		stInOuts.bEjectPresure40 S= (bPerfornamceTestResult OR bHourTestResult);
+		stInOuts.bEjectPresure S= bEolTestResult;
+		IF stInOuts.rPressure <= stParams.rMinimalPressure THEN
+			stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := FALSE;
+			iWorkStepWhole := 10;
+		END_IF
+	10:	//Oczekiwanie 
+		fbTestTimerWholeI(IN:=TRUE,PT:=REAL_TO_TIME(stChamberTestParams.rTestCoolingTimeFullStepI*1000));
+		IF fbTestTimerWholeI.Q THEN
+			iWorkStepWhole := 20;
+			fbTestTimerWholeI(IN:=FALSE);
+		END_IF
+	20:	//Test godzinny
+		ACT_HourTest();
+		IF bHourTestResult THEN
+			iWorkStepWhole := 25;
+		END_IF
+	25: //Test pod ciśnieniem
+		ACT_TestUnderPressure();
+		IF bUnderPresureTestResult THEN
+			iWorkStepWhole := 30;
+		END_IF
+	30:
+		stInOuts.bEjectPresure40 S= (bPerfornamceTestResult OR bHourTestResult);
+		stInOuts.bEjectPresure S= bEolTestResult;
+		IF stInOuts.rPressure <= stParams.rMinimalPressure THEN
+			stInOuts.bEjectPresure40 := stInOuts.bEjectPresure := FALSE;
+			iWorkStepWhole := 35;
+		END_IF
+	35:	//Oczekiwanie II
+		fbTestTimerWholeII(IN:=TRUE,PT:=REAL_TO_TIME(stChamberTestParams.rTestCoolingTimeFullStepII*1000));
+		IF fbTestTimerWholeII.Q THEN
+			iWorkStepWhole := 40;
+			fbTestTimerWholeII(IN:=FALSE);
+		END_IF
+	40:
+		ACT_PerformanceTest();
+		IF bPerfornamceTestResult THEN
+			iWorkStep:=1000;
+			iWorkStepWhole := 0;
+		END_IF
+	
+
+
+
+END_CASE]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="fbChamber">
+      <LineId Id="57" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="533" Count="0" />
+      <LineId Id="557" Count="0" />
+      <LineId Id="542" Count="0" />
+      <LineId Id="541" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="59" Count="2" />
+      <LineId Id="345" Count="0" />
+      <LineId Id="547" Count="0" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="539" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="524" Count="0" />
+      <LineId Id="434" Count="1" />
+      <LineId Id="437" Count="0" />
+      <LineId Id="526" Count="0" />
+      <LineId Id="436" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="546" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="534" Count="1" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="98" Count="1" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="94" Count="2" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="109" Count="1" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="155" Count="1" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="168" Count="1" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="525" Count="0" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="544" Count="0" />
+      <LineId Id="528" Count="1" />
+      <LineId Id="536" Count="0" />
+      <LineId Id="531" Count="1" />
+      <LineId Id="545" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="530" Count="0" />
+      <LineId Id="527" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="656" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="100" Count="1" />
+      <LineId Id="540" Count="0" />
+      <LineId Id="84" Count="1" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="652" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="26" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_Background">
+      <LineId Id="131" Count="0" />
+      <LineId Id="126" Count="1" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="1" Count="3" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="21" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="58" Count="2" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="47" Count="2" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="53" Count="1" />
+      <LineId Id="56" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_Cyclic30Test">
+      <LineId Id="72" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="32" Count="19" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="56" Count="1" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="61" Count="3" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="69" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_Cyclic70Test">
+      <LineId Id="41" Count="0" />
+      <LineId Id="2" Count="36" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_DataSampling">
+      <LineId Id="367" Count="1" />
+      <LineId Id="370" Count="0" />
+      <LineId Id="369" Count="0" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="305" Count="7" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="313" Count="0" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="43" Count="4" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="52" Count="1" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="319" Count="1" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="165" Count="13" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="160" Count="1" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="345" Count="0" />
+      <LineId Id="348" Count="1" />
+      <LineId Id="366" Count="0" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="347" Count="0" />
+      <LineId Id="352" Count="1" />
+      <LineId Id="355" Count="1" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="361" Count="0" />
+      <LineId Id="363" Count="1" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_EolTest">
+      <LineId Id="23" Count="0" />
+      <LineId Id="1" Count="1" />
+      <LineId Id="5" Count="2" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="22" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_GraphWriter">
+      <LineId Id="24" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="15" Count="3" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="19" Count="4" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_HourTest">
+      <LineId Id="33" Count="0" />
+      <LineId Id="2" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="5" Count="5" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="17" Count="2" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_PerformanceTest">
+      <LineId Id="30" Count="0" />
+      <LineId Id="2" Count="8" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="3" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_TestUnderPressure">
+      <LineId Id="35" Count="0" />
+      <LineId Id="3" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="28" Count="4" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="fbChamber.ACT_WholeTest">
+      <LineId Id="1" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="18" Count="2" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="53" Count="2" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="4" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="35" Count="3" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="56" Count="3" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

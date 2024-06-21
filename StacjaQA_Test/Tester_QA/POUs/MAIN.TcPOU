@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{abb7d10a-de73-4985-8e93-9ce65e78f374}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	fb : fbMainBlock;
+	fbAircomTime : fbDateAndTimeCalc;
+	saveDataPresistent : WritePersistentData;
+	fbSavePerform	: TON;
+	i : INT;
+	arTestParams		: ARRAY[0..3] OF stTestParams;
+	arstParams			: ARRAY[0..3] OF stParamschamber;
+	bSaveData	: BOOL;
+	bInit	: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT bInit THEN
+	MEMCPY(destAddr:= ADR(arTestParams), srcAddr:=ADR(GVL_TesterParams.arTestParams)  ,n:= SIZEOF(stTestParams)*4);
+	MEMCPY(destAddr:= ADR(arstParams), srcAddr:=ADR(GVL_TesterParams.arstParams)  ,n:= SIZEOF(stParamschamber)*4);
+	bInit := TRUE;
+END_IF
+fb(arstControl	:=GVL_TesterParams.arstControl,
+	arstParams	:= GVL_TesterParams.arstParams,
+	arstInOuts	:= GVL_IO.arstInOuts,
+	stChamberTestParams := GVL_TesterParams.arTestParams);
+fbAircomTime();
+
+bSaveData	S= (MEMCMP(pBuf1 := ADR(GVL_TesterParams.arTestParams),pBuf2:= ADR(arTestParams), n:= SIZEOF(stTestParams)*4) <> 0) OR (MEMCMP(pBuf1 := ADR(GVL_TesterParams.arstParams),pBuf2:= ADR(arstParams), n:= SIZEOF(stParamschamber)*4) <> 0);
+	
+fbSavePerform(IN:=bSaveData ,PT:=T#300S);		
+IF fbSavePerform.Q THEN
+	saveDataPresistent(NETID:='',PORT:=851,START:=TRUE,TMOUT:=T#2S);
+	bSaveData R= TRUE;
+	MEMCPY(destAddr:= ADR(arTestParams), srcAddr:=ADR(GVL_TesterParams.arTestParams)  ,n:= SIZEOF(stTestParams)*4);
+	MEMCPY(destAddr:= ADR(arstParams), srcAddr:=ADR(GVL_TesterParams.arstParams)  ,n:= SIZEOF(stParamschamber)*4);
+ELSE
+	saveDataPresistent(START:=FALSE);
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="49" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="44" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="62" Count="1" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="60" Count="1" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

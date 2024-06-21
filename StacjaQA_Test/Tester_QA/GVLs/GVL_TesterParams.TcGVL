@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_TesterParams" Id="{f4f023d2-2674-44b1-941f-a40721c5b8f2}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL PERSISTENT
+	arTestParams		: ARRAY[0..3] OF stTestParams;
+	arstParams			: ARRAY[0..3] OF stParamschamber;
+END_VAR
+VAR_GLOBAL
+	arstControl			: ARRAY[0..3] OF stControl;
+	stData				: stAircomTimeStruct;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>
