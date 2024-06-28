@@ -50,7 +50,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{F38189C3-83D2-4115-B4EB-B79E9E0C1FF7}" Name="Tester_QA" PrjFilePath="Tester_QA\Tester_QA.plcproj" TmcFilePath="Tester_QA\Tester_QA.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Tester_QA\Tester_QA.tmc" TmcHash="{51A46F7D-0977-F93B-6CE9-F27EC445B1CE}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Tester_QA\Tester_QA.tmc" TmcHash="{73138CD8-023E-C47D-F390-47D1A2D4E9B3}">
 					<Name>Tester_QA Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -179,6 +179,10 @@
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
 						<Var>
+							<Name>MAIN.fb.bRealease40lTank</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>GVL_IO.arstInOuts[0].bPowerON</Name>
 							<Comment><![CDATA[Załączenie zasilania]]></Comment>
 							<Type>BOOL</Type>
@@ -296,10 +300,6 @@
 						<Var>
 							<Name>GVL_IO.arstInOuts[3].bEjectPresure40</Name>
 							<Comment><![CDATA[Zrzucenie ciśnmienia z butli 40l]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.fb.bRealease40lTank</Name>
 							<Type>BOOL</Type>
 						</Var>
 					</Vars>

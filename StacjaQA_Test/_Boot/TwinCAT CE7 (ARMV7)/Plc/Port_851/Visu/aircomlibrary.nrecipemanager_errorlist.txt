@@ -1,0 +1,17 @@
+Id;Default
+0;NoError
+1;ReloadRecipeListError
+2;WriteRecipeError
+3;ReadRecipeError
+4;WriteSizeError
+5;ReadSizeError
+6;StructToBig
+7;FileOpenError
+8;FileCloseError
+9;ReadRecipeTimeout
+10;WriteRecipeTimeout
+11;BadCRC
+12;CommandStartProgramError
+13;FileDeleteError
+14;DeleteRecipeTimeout
+;

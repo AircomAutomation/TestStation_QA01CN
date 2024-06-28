@@ -1,0 +1,9 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramConfigError
+232;WheelWrongSide
+233;LackOfWheel
+234;RotaryFixtureError
+;

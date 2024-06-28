@@ -361,6 +361,16 @@ Screen"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"17"</v>
+              <v n="TextDefault">"Minimal current check time [s]"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"369"</v>
+              <v n="TextDefault">"Minimal current [A]"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"456"</v>
               <v n="TextDefault">"Minimal presure increase [bar]"</v>
               <l n="LanguageTexts" t="ArrayList" />

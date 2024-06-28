@@ -3035,7 +3035,7 @@
                     </o>
                     <o>
                       <v n="Id">1999528970L</v>
-                      <v n="Value">"NOT fbChamber.stControl.bChamberResoult"</v>
+                      <v n="Value">"stControl.sTestResult &lt;&gt; 'DONE'"</v>
                     </o>
                     <o>
                       <v n="Id">3719097617L</v>
@@ -3102,7 +3102,7 @@
                     </o>
                     <o>
                       <v n="Id">2477733581L</v>
-                      <v n="Value">"fbChamber.stControl.bChamberResoult"</v>
+                      <v n="Value">"stControl.sTestResult"</v>
                     </o>
                     <o>
                       <v n="Id">823443203L</v>

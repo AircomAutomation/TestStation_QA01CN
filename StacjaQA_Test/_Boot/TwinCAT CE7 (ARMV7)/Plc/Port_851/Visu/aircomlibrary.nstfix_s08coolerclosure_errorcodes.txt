@@ -1,0 +1,8 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramConfigError
+135;PartStabilizationTimeout
+137;PartStabReleaseTimeout
+;

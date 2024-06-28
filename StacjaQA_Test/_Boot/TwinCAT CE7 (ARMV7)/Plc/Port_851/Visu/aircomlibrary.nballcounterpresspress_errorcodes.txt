@@ -1,0 +1,15 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramConfigError
+518;ResetTimeout
+614;SafetySystemNotArmed
+140;NoMachineReactionOnStartSig
+96;TwoHandStartReleasedToEarly
+131;WorkPosAchieveTimeout
+132;OperInteruptedBeforeWorkPos
+138;WorkPosLost
+139;HomePosAchieveTimeout
+142;BallsNotPresentAfterPushing
+;

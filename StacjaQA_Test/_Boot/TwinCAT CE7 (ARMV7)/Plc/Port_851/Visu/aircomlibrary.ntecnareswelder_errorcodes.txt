@@ -1,0 +1,7 @@
+Id;Default
+0;NoError
+90;ProgramConfigError
+183;SensorWorkError
+190;NoPartDetected
+192;InvalidWeldOrder_FirstLeft
+;

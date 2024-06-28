@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="stControl" Id="{75a2bb4a-a879-4295-8e45-b218e6275f17}">
+    <Declaration><![CDATA[TYPE stControl :
+STRUCT
+	bStartPerform			 	: BOOL; 		//Wykonanie startu 
+	bStartAllow					: BOOL;			//Pozwolenie na start
+	bStopPerform				: BOOL;			//Wykonanie stopu
+	iSetTest					: nTestType :=nTestType.testEOL;	//Wybrany program
+	bChamberBusy				: BOOL;			//Czy komora pracuje
+	bTank40Used					: BOOL;			//Czy zbiornik 40l jest używany
+	tActualTime					: TIME;			//Czas wymuszenia testu
+	bResetChamber				: BOOL;			//Wykonanie resetu po błędzie;
+	bChamberResoult				: BOOL;			//Wynik z jakiegokolwiek testu
+	sTestResult					: STRING;		//Wynik testu wyświetlany do HMI
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

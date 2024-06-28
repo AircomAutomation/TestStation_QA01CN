@@ -1,0 +1,14 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramConfigError
+169;SensorNotReady
+170;IndicatorNotDet
+171;VRingNotDet
+172;VRingIndicatorNotDet
+173;CapNotDet
+174;CapIndicatorNotDet
+175;CapVRingNotDet
+176;CapVRingIndicatorNotDet
+;

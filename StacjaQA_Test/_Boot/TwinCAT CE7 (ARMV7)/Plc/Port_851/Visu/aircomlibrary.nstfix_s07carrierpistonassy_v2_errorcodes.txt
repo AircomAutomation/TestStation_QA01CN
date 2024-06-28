@@ -1,0 +1,12 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramConfigError
+102;HeatStampHomeError
+104;HeatStampWorkError
+234;RotaryFixtureError
+235;CylinderFixtureError
+236;DamagedStamp
+571;HeatStampTempStabWait
+;

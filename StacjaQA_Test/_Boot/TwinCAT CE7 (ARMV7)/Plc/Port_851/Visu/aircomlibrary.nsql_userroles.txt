@@ -1,0 +1,15 @@
+Id;Default
+0;NONE
+1;Unspecified
+2;Operator
+3;Quality
+4;RDChem
+5;Trainer
+6;Maintenance
+7;LineLeader
+8;ShiftLeader
+9;Supervisor
+10;RD
+11;Engineering
+12;AdminUser
+;

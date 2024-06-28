@@ -35,28 +35,28 @@
     <Compile Include="POUs\MAIN.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\FB\fbChamber.TcPOU">
+    <Compile Include="QATester\MainBlock\Chamber\FB\fbChamber.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\FB\fbSaveFiles.TcPOU">
+    <Compile Include="QATester\MainBlock\Chamber\FB\fbSaveFiles.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\ST\nCompresorTypes.TcDUT">
+    <Compile Include="QATester\MainBlock\Chamber\ST\nCompresorTypes.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\ST\nTestType.TcDUT">
+    <Compile Include="QATester\MainBlock\Chamber\ST\nTestType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\ST\stControl.TcDUT">
+    <Compile Include="QATester\MainBlock\Chamber\ST\stControl.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\ST\stInOuts.TcDUT">
+    <Compile Include="QATester\MainBlock\Chamber\ST\stInOuts.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\ST\stParamsChamber.TcDUT">
+    <Compile Include="QATester\MainBlock\Chamber\ST\stParamsChamber.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QATester\Chamber\ST\stTestParams.TcDUT">
+    <Compile Include="QATester\MainBlock\Chamber\ST\stTestParams.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QATester\MainBlock\fbMainBlock.TcPOU">
@@ -66,11 +66,11 @@
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Common\vScreenPicker.TcVIS">
+    <Compile Include="QATester\VISUs\Common\vSmallChamber.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Common\vSmallChamber.TcVIS">
+    <Compile Include="QATester\VISUs\Common\vSmallChamber_WEB.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
@@ -78,39 +78,51 @@
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
+    <Compile Include="QATester\VISUs\Common\vSmallChamber_v2_WEB.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
     <Compile Include="QATester\VISUs\Common\vTestPicker.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vFileSave.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\Connected\vFileSave.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vMain.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\Connected\vPlotScreen.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vMainScreen.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\Connected\vRecipe.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vPlotScreen.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\Connected\vService.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vRecipe.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\HMI\vMainScreen.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vService.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\HMI\vStatusScreen.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vStatusScreen.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\HMI\vStatusScreen_v2.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="QATester\VISUs\Screens\vStatusScreen_v2.TcVIS">
+    <Compile Include="QATester\VISUs\Screens\WEB\vMainScreen_WEB.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="QATester\VISUs\Screens\WEB\vStatusScreen_v2_WEB.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="QATester\VISUs\Screens\WEB\vStatusScreen_WEB.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
@@ -119,6 +131,14 @@
     </Compile>
     <Compile Include="QATester\VISUs\TextLists\txlTestTypes.TcTLO">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QATester\VISUs\vMain.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="QATester\VISUs\vMain_WEB.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
     <Compile Include="Visualization Manager.TcVMO">
       <SubType>Code</SubType>
@@ -131,13 +151,16 @@
     <Folder Include="DUTs" />
     <Folder Include="GVLs" />
     <Folder Include="QATester" />
-    <Folder Include="QATester\Chamber" />
-    <Folder Include="QATester\Chamber\FB" />
-    <Folder Include="QATester\Chamber\ST" />
     <Folder Include="POUs" />
     <Folder Include="QATester\MainBlock" />
+    <Folder Include="QATester\MainBlock\Chamber" />
+    <Folder Include="QATester\MainBlock\Chamber\FB" />
+    <Folder Include="QATester\MainBlock\Chamber\ST" />
     <Folder Include="QATester\VISUs" />
     <Folder Include="QATester\VISUs\Common" />
+    <Folder Include="QATester\VISUs\Screens\HMI" />
+    <Folder Include="QATester\VISUs\Screens\Connected" />
+    <Folder Include="QATester\VISUs\Screens\WEB" />
     <Folder Include="QATester\VISUs\TextLists" />
     <Folder Include="QATester\VISUs\Screens" />
   </ItemGroup>

@@ -1,0 +1,10 @@
+Id;Default
+0;None
+1;Info
+2;Warning
+4;Error
+8;Quality
+16;Maintenance
+32;IT
+64;Developer
+;

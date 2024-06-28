@@ -1,0 +1,9 @@
+Id;Default
+0;none
+10;EOL
+20;Performance
+30;Hour
+40;Whole
+50;Cyclic 30
+60;Cyclic 70
+;

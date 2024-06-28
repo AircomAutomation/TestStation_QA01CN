@@ -1,0 +1,11 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramConfigError
+240;HeatStampNotDetected
+241;BiggerActuatorError
+242;SmallerActuatorError
+243;CoolerActuatorError
+511;VisionSensorError
+;

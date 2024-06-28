@@ -1,0 +1,12 @@
+Id;Default
+0;NoError
+518;ResetTimeout
+90;ProgramConfigError
+140;NoMachineReactionOnStartSig
+272;PartsNotWelded
+3;HomePositionMissing
+139;BasePositionTimeout
+183;SensorWorkError
+190;PartNotDetectedInFixture
+831;TargetPositionTimeout
+;

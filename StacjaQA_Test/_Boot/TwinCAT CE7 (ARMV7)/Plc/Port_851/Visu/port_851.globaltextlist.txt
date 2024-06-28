@@ -1,0 +1,130 @@
+Id;Default
+842;%.0f
+209;%.1f
+240;%.2f
+978;%b
+905;%b.0
+856;%d
+100;%f
+991;%f.1
+798;%s
+302;1 Hour test
+205;300 sec
+393;< Act
+1794;Actual
+996;Actual 
+499;Actual chamber
+409;Actual Chamber
+952;Admin
+360;Amper
+155;Analog settings
+490;Bar
+479;Bottle release $R$Nconformation pressure
+189;Bottle release $R$Nconformation pressure [Bar]
+28;Bottle release conformation pressure
+516;Cancel change
+9;Chamber
+361;Chamber$R$NStatus
+663;Chamber 1
+656;Chamber 2
+910;Chamber 3
+78;Chamber 4
+734;Check start presure
+200;Checkbox
+150;Complete Test
+68;Compresor Type
+591;Compresor type
+166;Compressor Type
+105;Connect valve
+633;Cooling time [s]
+71;Current
+828;Current limit
+505;Current limit [A]
+373;Cycle time [s]
+521;Cycli x30 Test
+438;Cycli x70 Test
+137;Eject presure
+498;Eject presure 1l
+43;Eject presure 40l
+493;Eng
+729;EOL Test
+984;Error
+454;fbChamber.stControl.bChamberResoult
+535;File Name
+906;File name
+543;File operations
+655;File operations error
+879;File remote path
+568;File Save $R$NScreen
+694;File settings
+554;First cooling time
+613;First cooling time [s]
+214;Home $R$NScreen
+590;Home Screen
+1759;I point
+2580;II point
+419;Logout
+654;Manual Operations
+446;Maximal Presure decrease [bar]
+826;Maximal start time [s]
+474;Maxmial diffrence in presure [bar]
+2651;Measured
+17;Minimal current check time [s]
+369;Minimal current [A]
+456;Minimal presure increase [bar]
+547;New
+61;None
+690;Operation Desc
+517;Operator
+395;Path
+702;Performance
+926;Performance Test
+863;Plot $R$NScreen
+585;Presure
+691;Presure Input
+943;Presure to obtain
+104;Presure to obtain [bar]
+67;Presure valve turn off [bar]
+898;QA
+2034;Raw
+184;Recipe
+466;Recipe $R$NScreen
+608;Reset Perform
+367;Sampling time
+101;Sampling time 0 - 1 [s]
+1173;Sampling time 0 - 150 [ms] | [ms]
+1002;Sampling time 0 - 300 [s]
+866;Sampling time 1 - 300 [s]
+887;Sampling time 150 - 1000 [ms] | [ms]
+975;Sampling time t  > 1 [s]
+152;Sampling time x  > 1 [s] | [ms]
+758;Save every
+791;Save every n records
+620;Save perform
+576;Saving Error
+92;Second cooling time
+624;Second cooling time [s]
+796;Service
+907;Service $R$NScreen
+861;Set pressure to start [bar]
+727;Set pressure to start [s]
+577;Set presure to start [bar]
+867;Start Perform
+315;Start under presure
+603;Stop Perform
+380;Temperature
+765;Test name
+786;Test result
+857;Test time
+942;Test time [s]
+956;Test Type
+294;Themp
+536;Turn off presure valve before [bar]
+701;Turn On Power
+179;User
+972;User$R$NLogin
+2421;Value
+106;Volt
+578;Voltage
+1883;^^ Set NEW ^^
+1045;^^^ Confirm change !!! ^^^

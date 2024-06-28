@@ -1,0 +1,13 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+230;SelectStationIdError
+89;StatusSaveError
+518;ResetTimeout
+90;ProgramConfigError
+614;SafetySystemNotArmed
+140;NoMachineReactionOnStartSig
+183;SensorWorkError
+272;PartsNotWelded
+;

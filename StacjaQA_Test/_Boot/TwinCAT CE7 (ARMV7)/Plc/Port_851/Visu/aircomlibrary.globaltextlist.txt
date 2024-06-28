@@ -1,0 +1,109 @@
+Id;Default
+2691;       PIM System Active
+3653;    Assembly post station: %s
+859;%.3f [s]
+2235;%d
+2727;/ %d
+1112;Available recipe list:
+317;Balluff DI1 (Cap)
+65;Balluff DI1 (Indicator)
+43;Balluff DI2 (V-ring)
+941;Balluff DI3 (Cap)
+169;Balluff toogle signal
+350;Balluff trigger
+231;Cap detection EN
+2215;Copy data TMP -> PLC ?
+213;Copy Recipe Data $R$NPLC -> TMP 
+718;Copy Recipe Data $R$NTMP -> PLC
+780;Current error code: %s
+3868;DB connection master error
+80;Delete Selected Recipe
+1588;Delete selection ?
+311;Diagnostics
+1816;Disable MySQL conn.:
+704;DTL - Manual Control
+921;Error
+672;Error Code
+1083;Error: $R$N%s
+1631;Error: %s
+894;Event Description
+840;Event Time
+288;Fixture
+75;Fixture data
+838;Fixture error active
+140;Fixture error code: %d
+754;Fixture ready to operate
+199;Fixture settings:
+356;Fixture Signals:
+993;Fixture unlocked
+3407;I: Part presence sensor
+480;Indicator detection  EN
+305;Inputs
+1586;Inputs / Outputs status
+2078;Keep connection open:
+189;Lock when operation brake 
+298;Machine
+708;Machine data
+116;Machine state: %s
+126;MachineId
+135;Max active nodes (Set):
+719;Mean OK status save time:
+1529;Monitor OFF time
+124;Monitor ON time
+2705;MySQL DB connection status
+797;NO
+380;Outputs
+561;Part locked in fixture
+848;Parts NOK: %d
+103;Parts OK: %d
+781;PIM
+1760;PIM Core Diagnnostics
+703;PIM data
+1767;PIM DB connection status
+526;PIM system active
+786;PIM work lock active
+907;PIM work permission
+615;PLC work permission
+1207;Queue size:
+500;Read Selected Recipe
+602;Ready to welding
+120;Recipe Manager
+898;Recipe Name: %s
+1116;Reload Recipe List
+934;Repeat Qty
+2570;Required OFF time: %.1f [s]
+2346;Required ON time: %.1f [s]
+565;Reset Error
+908;Reset signal
+742;Save PLC Recipe
+1080;Save recipe data to file
+391;Save TMP Recipe
+854;Serial address: %d
+578;Serial address: %s
+420;Serial communication EN
+352;Serial driver address
+190;Settings
+1479;SQL nodes active:
+3781;SQL queries Err:
+361;SQL queries OK:
+645;Station - %s
+76;Station data downloaded
+4481;Status
+670;Status / Info
+625;Test mode EN
+293;Toogle
+650;Two-hand start input
+188;UltraSonic welding mach.:
+198;UltraSonic welding machine:
+353;US generating active
+484;US generation active
+1912;User logged
+434;V-ring detection EN
+641;Vacum EN
+844;Vacum valve open
+336;Vision max trig repeats
+966;Vision reatempts nb
+588;Weld OK
+1664;Work parameters
+376;Work permission signal
+102;YES

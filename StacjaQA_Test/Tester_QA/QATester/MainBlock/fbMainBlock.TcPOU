@@ -14,54 +14,26 @@ VAR_IN_OUT
 END_VAR
 VAR
 	arFbChamber		: ARRAY[0..3] OF fbChamber;
-	iSort			: INT;
+	i			: INT;
 	bTankBusy		: BOOL;
 	bRealease40lTank	AT %Q* : BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-//Bloki funkcyjne
-arFbChamber[0](stControl:=arstControl[0],stInOuts:=arstInOuts[0],stParams:=arstParams[0],stChamberTestParams:=stChamberTestParams[arstParams[0].iCompresorType],stTime:=GVL_Aircom.stAC_DT_Data);
-arFbChamber[1](stControl:=arstControl[1],stInOuts:=arstInOuts[1],stParams:=arstParams[1],stChamberTestParams:=stChamberTestParams[arstParams[1].iCompresorType],stTime:=GVL_Aircom.stAC_DT_Data);
-arFbChamber[2](stControl:=arstControl[2],stInOuts:=arstInOuts[2],stParams:=arstParams[2],stChamberTestParams:=stChamberTestParams[arstParams[2].iCompresorType],stTime:=GVL_Aircom.stAC_DT_Data);
-arFbChamber[3](stControl:=arstControl[3],stInOuts:=arstInOuts[3],stParams:=arstParams[3],stChamberTestParams:=stChamberTestParams[arstParams[3].iCompresorType],stTime:=GVL_Aircom.stAC_DT_Data);
-//Obsługa kolejkowania
-bTankBusy := arstControl[0].bTank40Used OR arstControl[1].bTank40Used OR arstControl[2].bTank40Used OR arstControl[3].bTank40Used;
-IF NOT bTankBusy  THEN
-	FOR iSort := 0 TO 3 DO
-		IF arstControl[iSort].tActualTime<=arstControl[0].tActualTime AND arstControl[iSort].tActualTime<=arstControl[1].tActualTime AND arstControl[iSort].tActualTime<=arstControl[2].tActualTime AND arstControl[iSort].tActualTime<=arstControl[3].tActualTime AND arstControl[iSort].bStartPerform AND NOT arstControl[0].bStartAllow AND NOT arstControl[1].bStartAllow AND NOT arstControl[2].bStartAllow AND NOT arstControl[3].bStartAllow THEN
-			arstControl[iSort].bStartAllow := TRUE;
-		END_IF
-		(*IF (arstControl[iSort].tActualTime<=arstControl[0].tActualTime AND arstControl[0].bStartPerform AND NOT arstControl[0].bStartAllow AND NOT arstControl[1].bStartAllow AND NOT arstControl[2].bStartAllow AND NOT arstControl[3].bStartAllow)
-			AND (arstControl[iSort].tActualTime<=arstControl[1].tActualTime AND arstControl[1].bStartPerform AND NOT arstControl[0].bStartAllow AND NOT arstControl[1].bStartAllow AND NOT arstControl[2].bStartAllow AND NOT arstControl[3].bStartAllow) 
-			AND (arstControl[iSort].tActualTime<=arstControl[2].tActualTime AND arstControl[2].bStartPerform AND NOT arstControl[0].bStartAllow AND NOT arstControl[1].bStartAllow AND NOT arstControl[2].bStartAllow AND NOT arstControl[3].bStartAllow) 
-			AND (arstControl[iSort].tActualTime<=arstControl[3].tActualTime AND arstControl[3].bStartPerform AND NOT arstControl[0].bStartAllow AND NOT arstControl[1].bStartAllow AND NOT arstControl[2].bStartAllow AND NOT arstControl[3].bStartAllow) THEN
-			arstControl[iSort].bStartAllow := TRUE;
-		END_IF*)
-	END_FOR
-END_IF
-bRealease40lTank := arstInOuts[0].bEjectPresure40 OR arstInOuts[1].bEjectPresure40 OR arstInOuts[2].bEjectPresure40 OR arstInOuts[3].bEjectPresure40;]]></ST>
+      <ST><![CDATA[//Bloki funkcyjne
+
+FOR i := 0 TO 3 DO
+	arstControl[i].bStartAllow := NOT arstControl[i].bChamberBusy;		
+	arFbChamber[i](stControl:=arstControl[i],stInOuts:=arstInOuts[i],stParams:=arstParams[i],stChamberTestParams:=stChamberTestParams[arstParams[i].iCompresorType],stTime:=GVL_Aircom.stAC_DT_Data);
+END_FOR
+]]></ST>
     </Implementation>
     <LineIds Name="fbMainBlock">
-      <LineId Id="130" Count="0" />
       <LineId Id="21" Count="0" />
-      <LineId Id="9" Count="0" />
-      <LineId Id="18" Count="2" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="33" Count="0" />
-      <LineId Id="31" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="108" Count="0" />
-      <LineId Id="36" Count="0" />
-      <LineId Id="110" Count="0" />
-      <LineId Id="109" Count="0" />
-      <LineId Id="41" Count="2" />
-      <LineId Id="40" Count="0" />
-      <LineId Id="39" Count="0" />
-      <LineId Id="37" Count="0" />
-      <LineId Id="35" Count="0" />
-      <LineId Id="88" Count="0" />
+      <LineId Id="152" Count="1" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="154" Count="1" />
+      <LineId Id="151" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

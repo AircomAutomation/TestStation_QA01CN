@@ -1,0 +1,14 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+518;ResetTimeout
+90;ProgramConfigError
+140;NoMachineReactionOnStartSig
+169;SensorNotReady
+180;SearchAreaNotVisible
+181;FrontFanNotDetected
+183;SensorWorkError
+190;PartNotDetectedInFixture
+272;PartsNotWelded
+;

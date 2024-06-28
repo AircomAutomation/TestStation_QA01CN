@@ -1,0 +1,12 @@
+Id;Default
+0;NoError
+53;UnKnownAlarm
+54;UnKnownLock
+90;ProgramError
+1;AddBadPointer
+2;AddNewOperatorFail
+3;AddNewNoSpaceForAddPriority
+4;AddNewFailedMasterErrorAtCore
+106;SQL_SelectParamsError
+107;SQL_InsertParamsError
+;
